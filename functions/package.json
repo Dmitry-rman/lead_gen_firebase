@@ -1,0 +1,41 @@
+{
+  "name": "functions",
+  "description": "Cloud Functions for Firebase",
+  "scripts": {
+    "lint": "eslint --fix",
+    "serve": "firebase emulators:start --only functions",
+    "shell": "firebase functions:shell",
+    "start": "npm run shell",
+    "deploy": "firebase deploy --only functions",
+    "logs": "firebase functions:log"
+  },
+  "main": "index.js",
+  "dependencies": {
+    "airtable": "^0.12.2",
+    "audit": "^0.0.6",
+    "aws-sdk": "^2.1006.0",
+    "axios": "^1.4.0",
+    "crc": "^4.3.2",
+    "firebase": "^10.8.1",
+    "firebase-admin": "^11.11.0",
+    "firebase-functions": "^5.0.1",
+    "form-data": "v4.0.0",
+    "install": "^0.13.0",
+    "node-fetch": "^2.6.5",
+    "node-telegram-bot-api": "^0.63.0",
+    "openai": "^4.43.0",
+    "uuid": "^9.0.1"
+  },
+  "devDependencies": {
+    "@types/node-telegram-bot-api": "^0.61.7",
+    "eslint": "^7.6.0",
+    "eslint-config-google": "^0.14.0",
+    "eslint-plugin-promise": "^4.2.1",
+    "firebase-functions-test": "^0.2.0"
+  },
+  "engines": {
+    "node": "18"
+  },
+  "private": true
+}
+
