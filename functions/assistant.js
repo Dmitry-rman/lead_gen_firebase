@@ -28,8 +28,11 @@ exports.getAIResponse = async function(data) {
     if (response.error) {
        return `Извините, произошла внутреняя ошибка! Пожалуйста, свяжитесь со службой поддержки если это повторится.`;
     } else {
-       //console.log(`getAIResponse response: ${response}`);
-       return response;
+        if (data.logPrefix != null) {
+          console.log(`getAIResponse response: ${response}`);
+        }
+        
+        return response;
     }
  }
  
@@ -48,6 +51,7 @@ async function _getAIResponse(data) {
          } catch (error) {
             console.log(error);
           }
+          console.log(`${data.logPrefix}: ${data.user || "none"}, ${data.text}`);
     } else {
        // console.log(data.text);
     }
@@ -55,8 +59,6 @@ async function _getAIResponse(data) {
     if (data.language != null) {
         data.text += `. Use ${data.language} language in response.`;
     }
-
-   // console.log(`${data.logPrefix}: ${data.user || "none"}, ${data.text}`);
 
     try {
         switch (data.type) {

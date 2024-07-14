@@ -28,11 +28,13 @@ admin.initializeApp({
 });
 
 const assistant = require("./assistant");
+const messages = require("./messages");
 
 exports.parseData = functions.region(FUNCTIONS_REGION)
 .https.onCall(async (data, context) => {
     const requestData = {
         text: data.content,
+        gptModel: 'gpt-3.5-turbo',
         prompt: `
         I will send you text from browser with coup of organizations from Google response.
         Format and response input text as JSON array with next format:
@@ -54,13 +56,15 @@ exports.parseData = functions.region(FUNCTIONS_REGION)
          Use Russian language in response.
         `,
         jsonFormat: true,
-        logPrefix: 'http getAssistant',
         temperature: 0.2
       };
     
       try {
         const result = await assistant.getAIResponse(requestData);
         console.log(result);
+
+        const site = data.site;
+        const query = data.query;
 
         let parsedResult;
         try {
@@ -72,6 +76,12 @@ exports.parseData = functions.region(FUNCTIONS_REGION)
         let organizations = parsedResult['data'];
 
         if ( organizations != null) {
+            // Добавляем поля site и query к каждому элементу
+            organizations = organizations.map(org => ({
+                ...org,
+                site: site,
+                query: query
+            }));
             return { data: { data: organizations, count: organizations.length } };
         } else {
             return { error: result };
@@ -80,4 +90,14 @@ exports.parseData = functions.region(FUNCTIONS_REGION)
         console.error('Error in getAIText:', error);
         return { "error": "Failed to get AI text response." };
       }
+});
+
+exports.getMessage = functions.region(FUNCTIONS_REGION)
+.https.onCall(async (data, context) => {
+    const requestData = {
+        ...data,
+        logPrefix: 'http getAssistant',
+        temperature: 0.5
+    };
+   return await messages.getMessage(requestData);
 });

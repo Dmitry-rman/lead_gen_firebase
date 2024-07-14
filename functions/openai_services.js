@@ -57,8 +57,11 @@ async function getAIConversation(data) {
     const jsonFormat = data.jsonFormat;
     const document = data.document;
     const temperature = data.temperature || 0.2;
+    let modelName = 'gpt-4o';
+    if (data.gptModel != null) {
+        modelName = data.gptModel
+    }
 
-    const modelName = "gpt-3.5-turbo"; // Adjust model name as required
     let messages = [
         { "role": "system", "content": prompt }
     ];
@@ -107,7 +110,7 @@ async function getAIConversation(data) {
     }
 
     try {
-        let data = {
+        let input = {
             messages: messages,
             model: modelName,
             temperature: temperature,
@@ -117,14 +120,14 @@ async function getAIConversation(data) {
         };
 
         if (user) {
-            data["user"] = user;
+            input["user"] = user;
         }
 
         if (jsonFormat) {
-            data['response_format'] = { "type":"json_object" };
+            input['response_format'] = { "type":"json_object" };
         }
 
-        const completion = await openai.chat.completions.create(data);
+        const completion = await openai.chat.completions.create(input);
         const CHOICES_ARRAY = completion.choices.map(choice => choice.message.content);
         return CHOICES_ARRAY[0];
     } catch  (error) {
