@@ -1,4 +1,5 @@
 const openAIServices = require('./openai_services');
+const telegram = require("./telegram");
 
 const AssisstantType = {
     openai: 'openai',
@@ -31,7 +32,7 @@ exports.getAIResponse = async function(data) {
         if (data.logPrefix != null) {
           console.log(`getAIResponse response: ${response}`);
         }
-        
+
         return response;
     }
  }
@@ -50,8 +51,11 @@ async function _getAIResponse(data) {
             }
          } catch (error) {
             console.log(error);
-          }
-          console.log(`${data.logPrefix}: ${data.user || "none"}, ${data.text}`);
+        }
+
+        const logText = `${data.logPrefix}: ${data.user || "none"}, ${data.text}`;
+        console.log(logText);
+        telegram.sendServiceMessage(logText);
     } else {
        // console.log(data.text);
     }
@@ -65,6 +69,12 @@ async function _getAIResponse(data) {
             case AssisstantType.chatgpt:
                     const result = await openAIServices.getAIConversation(data);
                     const error = result.error;
+
+                    if (data.logPrefix != null) {
+                        const logText = `${result}`;
+                        console.log(logText);
+                        telegram.sendServiceMessage(logText);
+                    }
 
                     return result;
     
