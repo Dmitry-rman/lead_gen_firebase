@@ -10,6 +10,7 @@ function _dateToISO8601(date){
 };
 
 exports.getMessage = async function(data) {
+    await addMessage(data.user, data.chatId, data.text,  new Date(), "user");
     const requestData = {
         ...data,
         logPrefix: 'http getMessage',
@@ -35,6 +36,7 @@ Response in next JSON format: { "text": text, "abuse": abuse }, where text is a 
         }
         
         const { text, abuse } = jsonResponse;
+        await addMessage(data.user, data.chatId, text, new Date(), "assistant");
 
         let result = { "data": { "text": text } };
 
@@ -51,6 +53,19 @@ Response in next JSON format: { "text": text, "abuse": abuse }, where text is a 
         return { "error": "Failed to get AI text response." };
       }
 };
+
+async function addMessage(userUID, chatId, text, date, roleType) {
+    const db = admin.firestore();
+    const chatRef = db.collection(`chats/${chatId}/messages`);
+
+    // Создание новой записи, если предупреждения не найдены
+    const doc = await chatRef.add({ 
+        role: roleType, 
+        content: text,
+        isHidden: false,
+        createdAt: admin.firestore.Timestamp.fromDate(date) 
+    });
+}
 
 async function addAbusiveUser(userUID, chatId, message) {
     const db = admin.firestore();
