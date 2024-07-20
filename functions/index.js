@@ -43,6 +43,7 @@ exports.parseData = functions.region(FUNCTIONS_REGION)
         {
          name: [name],
          email: [email],
+         phone: [phone],
          city: [city],
          address: [address],
          type: [type]
@@ -52,7 +53,8 @@ exports.parseData = functions.region(FUNCTIONS_REGION)
         }
          Where with the following fields name (organization name),
          email (1 e-mail), city, address (organization address, do not write 2GIS or city name here), 
-         type (type of activity, for example car service).
+         type (type of activity, for example car service), phone you found.
+         Phone and email are optional fields if its values are exists.
          Use Russian language in response.
         `,
         jsonFormat: true,
@@ -100,4 +102,14 @@ exports.getMessage = functions.region(FUNCTIONS_REGION)
         temperature: 0.5
     };
    return await messages.getMessage(requestData);
+});
+
+exports.createChat =  functions.region(FUNCTIONS_REGION)
+.https.onCall(async (data, context) => {
+    return await messages.createChat(data);
+});
+
+exports.deleteChat =  functions.region(FUNCTIONS_REGION)
+.https.onCall(async (data, context) => {
+    return await messages.deleteChat(data);
 });

@@ -9,6 +9,80 @@ function _dateToISO8601(date){
     return date.toISOString().replace(/\.\d{3}Z$/, 'Z');
 };
 
+exports.createChat =  async function(data) {
+    const db = admin.firestore();
+    const chatRef = db.collection(`chats`);
+    const now = new Date();
+
+    try {
+
+    // Создание новой записи чата
+    const docRef = await chatRef.add({ 
+        name: data.name, 
+        type: data.type,
+        userUID: data.userUID,
+        createdAt: admin.firestore.Timestamp.fromDate(now),
+        isDeleted: false
+    });
+
+    const startMessageText = `
+    Здравствуйте, я буду вашим бизнес-консультантом.
+    Вы можете задать мне любые вопросы относительно своего бизнеса, клиентов и проблем, которые у вас возникают.
+    Давайте начнём с определения вашей целевой аудитории? Опишите, пожалуйста, ваш продукт или услугу.
+    `;
+
+    const newMessage = {
+        content: startMessageText,
+        createdAt: admin.firestore.Timestamp.fromDate(now),
+        role: 'assistant'
+    };
+
+    await docRef.collection(`messages`).add(newMessage);
+
+    const documentData = (await docRef.get()).data();
+    // Конвертация Timestamp в секунды для клиентской обработки
+    let result = {
+        ...documentData,
+        documentId: docRef.id,
+        createdAt: _dateToISO8601(now)
+    };
+
+    return { "data": result };
+
+    } catch (error) {
+        console.error(`Error on creating chat:`, error);
+        throw new Error('Failed to create chat.');
+    }
+};
+
+exports.deleteChat = async function(data) {
+    const db = admin.firestore();
+    const chatRef = db.collection('chats').doc(data.documentId);
+
+    try {
+        const chatDoc = await chatRef.get();
+
+        if (!chatDoc.exists) {
+            console.log(`Chat document with ID ${data.documentId} does not exist.`);
+            return;
+        }
+
+        const chat = chatDoc.data();
+
+        if (data.userUID === chat.userUID) {
+            await chatRef.update({
+                isDeleted: true
+            });
+            console.log(`Chat with ID ${data.documentId} marked as deleted.`);
+        } else {
+            console.log(`Error on delete chat. UserUID is wrong!`);
+        }
+    } catch (error) {
+        console.error(`Error deleting chat with ID ${data.documentId}:`, error);
+        throw new Error(`Failed to delete chat ${data.documentId}`);
+    }
+};
+
 exports.getMessage = async function(data) {
     await addMessage(data.user, data.chatId, data.text,  new Date(), "user");
     const requestData = {
@@ -62,7 +136,6 @@ async function addMessage(userUID, chatId, text, date, roleType) {
     const doc = await chatRef.add({ 
         role: roleType, 
         content: text,
-        isHidden: false,
         createdAt: admin.firestore.Timestamp.fromDate(date) 
     });
 }
