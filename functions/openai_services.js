@@ -29,8 +29,7 @@ async function translateText(language, text, service) {
             {"role": "system", "content": `Act as a translator. Return just a result text without quotas.`},
             {"role": "user", "content": `Translate to ${language} language: ${text}`},
         ],
-        //model: 'gpt4-o',
-        model: 'gpt-3.5-turbo',
+        model: 'gpt-4o-mini',
         temperature: 0,
         });
         
@@ -57,7 +56,7 @@ async function getAIConversation(data) {
     const jsonFormat = data.jsonFormat;
     const document = data.document;
     const temperature = data.temperature || 0.2;
-    let modelName = 'gpt-4o';
+    let modelName = 'gpt-4o-mini';
     if (data.gptModel != null) {
         modelName = data.gptModel
     }
