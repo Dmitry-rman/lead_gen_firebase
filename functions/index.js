@@ -34,7 +34,7 @@ exports.parseData = functions.region(FUNCTIONS_REGION)
 .https.onCall(async (data, context) => {
     const requestData = {
         text: data.content,
-        gptModel: 'gpt-3.5-turbo',
+        gptModel: 'gpt-4o-mini',
         prompt: `
         I will send you text from browser with coup of organizations from Google response.
         Format and response input text as JSON array with next format:
